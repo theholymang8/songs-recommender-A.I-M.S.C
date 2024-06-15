@@ -161,3 +161,4 @@ test_datasets/
 .ruff_cache/
 *.pkl
 data/
+metadata/

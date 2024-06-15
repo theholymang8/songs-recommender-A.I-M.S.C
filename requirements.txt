@@ -1,2 +1,4 @@
+librosa
+matplotlib
 pre-commit
 torch
