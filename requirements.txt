@@ -1,4 +1,5 @@
 librosa
 matplotlib
+polars
 pre-commit
 torch
