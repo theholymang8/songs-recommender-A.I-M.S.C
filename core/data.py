@@ -156,7 +156,54 @@ def make_train_test(
     return train_set_map, test_set_map
 
 
+def get_genre_data(source_folder: str, destination_folder: str, **kwargs):
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+
+    genre_dict = make_genre_data(**kwargs)
+
+    for key in genre_dict.keys():
+        if not os.path.exists(destination_folder + key + "/"):
+            os.mkdir(destination_folder + key + "/")
+
+        get_wav_data(source_folder, destination_folder + key + "/", genre_dict[key])
+
+        print(f"{key} WAV data generated!")
+
+
+def make_genre_data(tracks_table_path: str):
+    # read track dataset
+    metadata = pl.read_csv(tracks_table_path)
+    # select necessary rows
+    metadata = metadata.select(["track_id", "genre_top"])
+    # make column with track filename
+    metadata = metadata.with_columns(
+        pl.col("track_id")
+        .map_elements(fill_track_id, return_dtype=pl.String)
+        .alias("file_name")
+    )
+    genres = metadata["genre_top"].unique().to_list()
+
+    genre_dict = {}
+
+    for genre in genres:
+        genre_dict[genre] = metadata.filter(pl.col("genre_top") == genre)[
+            "file_name"
+        ].to_list()
+
+    return genre_dict
+
+
 def fill_track_id(track_id: int):
+    """Given a track ID, convert it to a 6 character string filled with zeros at the front
+    (if the track ID contains less than 6 digits already).
+
+    Args:
+        track_id (int): The ID of the track.
+
+    Returns:
+        track_id: String converted track ID.
+    """
     track_id = str(track_id)
     required_len = 6
     char_len = len(track_id)

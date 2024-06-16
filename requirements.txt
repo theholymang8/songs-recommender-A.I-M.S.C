@@ -1,5 +1,10 @@
+deep-audio-features
+imblearn
 librosa
 matplotlib
 polars
 pre-commit
 torch
+torchaudio
+torchvision
+tqdm
