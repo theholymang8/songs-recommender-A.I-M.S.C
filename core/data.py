@@ -22,7 +22,8 @@ def get_wav_data(
     destination_folder: str,
     eligible_files: Union[list, None] = None,
 ):
-    """_summary_
+    """Convert audio data of the source folder to wav format with sample rate 44,1kHz.
+    Additionally convert form stereo to mono.
 
     Args:
         source_folder (str): Source folder of MP3 data.
@@ -45,6 +46,8 @@ def get_wav_data(
                             "ffmpeg",
                             "-i",
                             source_folder + folder + "/" + file,
+                            "-ac",
+                            "1",
                             destination_folder + file[:-4] + ".wav",
                             "-ar",
                             "44100",
@@ -52,6 +55,40 @@ def get_wav_data(
                             "error",
                         ]
                     )
+
+
+def segment_audio(source_folder: str):
+    """Segment every audio file in the directory. Additionally the parent file is deleted along with
+    segments that are less than 2 seconds long.
+
+    Args:
+        source_folder (str): Folder containing audio files.
+    """
+    # make segmention files and delete parent
+    wav_files = os.listdir(source_folder)
+    for wav in wav_files:
+        subprocess.call(
+            [
+                "ffmpeg",
+                "-i",
+                source_folder + wav,
+                "-f",
+                "segment",
+                "-segment_time",
+                "10",
+                f"{source_folder}{wav[:-4]}_%0d.wav",
+                "-loglevel",
+                "error",
+            ]
+        )
+        os.remove(source_folder + wav)
+
+    # delete segments less than 2 seconds
+    wav_files = os.listdir(source_folder)
+    for wav in wav_files:
+        duration = librosa.get_duration(path=source_folder + wav)
+        if duration <= 2:
+            os.remove(source_folder + wav)
 
 
 def get_train_test(source_folder: str, destination_folder: str, **kwargs) -> None:
@@ -167,6 +204,7 @@ def get_genre_data(source_folder: str, destination_folder: str, **kwargs):
             os.mkdir(destination_folder + key + "/")
 
         get_wav_data(source_folder, destination_folder + key + "/", genre_dict[key])
+        segment_audio(destination_folder + key + "/")
 
         print(f"{key} WAV data generated!")
 
