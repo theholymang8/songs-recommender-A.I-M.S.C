@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+from pathlib import Path, PurePath
 from typing import Union
 
 import librosa
@@ -41,14 +42,25 @@ def get_wav_data(
                 if file[:-4] in eligible_files and not os.path.exists(
                     destination_folder + file[:-4] + ".wav"
                 ):
+                    source_file = list(
+                        PurePath(os.path.join(source_folder, folder, file)).parts
+                    )
+                    destiantion_file = list(
+                        PurePath(
+                            os.path.join(destination_folder, file[:-4] + ".wav")
+                        ).parts
+                    )
+
+                    source_file = Path(*source_file)
+                    destiantion_file = Path(*destiantion_file)
                     subprocess.call(
                         [
                             "ffmpeg",
                             "-i",
-                            source_folder + folder + "/" + file,
+                            source_file,
                             "-ac",
                             "1",
-                            destination_folder + file[:-4] + ".wav",
+                            destiantion_file,
                             "-ar",
                             "44100",
                             "-loglevel",
