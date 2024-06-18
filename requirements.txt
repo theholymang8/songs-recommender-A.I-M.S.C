@@ -8,3 +8,6 @@ torch
 torchaudio
 torchvision
 tqdm
+sqlalchemy==2.0.30
+mysqlclient==2.2.4
+pandas==2.2.2
