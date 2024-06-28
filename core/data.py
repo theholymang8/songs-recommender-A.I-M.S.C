@@ -125,7 +125,7 @@ def get_train_test(source_folder: str, destination_folder: str, **kwargs) -> Non
     test_set.write_csv(destination_folder + "test_data/" + "test_set_map.csv")
 
     train_file_names = train_set["file_name"].to_list()
-    test_file_names = train_set["file_name"].to_list()
+    test_file_names = test_set["file_name"].to_list()
 
     get_wav_data(source_folder, destination_folder + "train_data/", train_file_names)
     print("Training dataset generated!")
