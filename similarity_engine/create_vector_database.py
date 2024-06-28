@@ -1,9 +1,12 @@
 import json
-from vector_database import VectorDatabase 
 
-def load_config(config_path='config.json'):
-    with open(config_path, 'r') as file:
+from create_vector_database import VectorDatabase
+
+
+def load_config(config_path="config.json"):
+    with open(config_path, "r") as file:
         return json.load(file)
+
 
 def main():
     config = load_config()
@@ -22,5 +25,6 @@ def main():
 
     print("Index creation and metadata insertion completed successfully.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
