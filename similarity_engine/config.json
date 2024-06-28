@@ -1,0 +1,17 @@
+{
+    "database": {
+        "user": "your_username",
+        "password": "your_password",
+        "host": "localhost",
+        "port": "3306",
+        "database": "multimodal_msc_ai_songs"
+    },
+    "paths": {
+        "vector_file": "path/to/your/vectors.npy",
+        "index_path": "path/to/save/index"
+    },
+    "faiss": {
+        "dimension": 128,
+        "index_type": "FlatL2"
+    }
+}
