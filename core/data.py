@@ -2,7 +2,6 @@ import os
 import shutil
 import subprocess
 from pathlib import Path, PurePath
-from typing import Union
 
 import librosa
 import matplotlib.pyplot as plt
@@ -22,7 +21,7 @@ def unzip_data(zip_file: str, destination_path: str):
 def get_wav_data(
     source_folder: str,
     destination_folder: str,
-    eligible_files: Union[list, None] = None,
+    # eligible_files: Union[list, None] = None,
 ):
     """Convert audio data of the source folder to wav format with sample rate 44,1kHz.
     Additionally convert form stereo to mono.
@@ -40,9 +39,7 @@ def get_wav_data(
         if os.path.isdir(os.path.abspath(source_folder + folder)):
             files = os.listdir(source_folder + folder)
             for file in files:
-                if file[:-4] in eligible_files and not os.path.exists(
-                    destination_folder + file[:-4] + ".wav"
-                ):
+                if not os.path.exists(destination_folder + file[:-4] + ".wav"):
                     source_file = list(
                         PurePath(os.path.join(source_folder, folder, file)).parts
                     )
@@ -77,31 +74,33 @@ def segment_audio(source_folder: str, destination_folder: str):
     Args:
         source_folder (str): Folder containing audio files.
     """
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
     # make segmention files and delete parent
     wav_files = os.listdir(source_folder)
     for wav in wav_files:
-        subprocess.call(
-            [
-                "ffmpeg",
-                "-i",
-                source_folder + wav,
-                "-f",
-                "segment",
-                "-segment_time",
-                "10",
-                f"{destination_folder}{wav[:-4]}_%0d.wav",
-                "-loglevel",
-                "error",
-            ]
-        )
-        os.remove(source_folder + wav)
+        if wav.endswith(".wav"):
+            subprocess.call(
+                [
+                    "ffmpeg",
+                    "-i",
+                    source_folder + wav,
+                    "-f",
+                    "segment",
+                    "-segment_time",
+                    "10",
+                    f"{destination_folder}{wav[:-4]}_%0d.wav",
+                    "-loglevel",
+                    "error",
+                ]
+            )
 
     # delete segments less than 2 seconds
-    wav_files = os.listdir(source_folder)
+    wav_files = os.listdir(destination_folder)
     for wav in wav_files:
-        duration = librosa.get_duration(path=source_folder + wav)
+        duration = librosa.get_duration(path=destination_folder + wav)
         if duration <= 2:
-            os.remove(source_folder + wav)
+            os.remove(destination_folder + wav)
 
 
 def get_train_test(source_folder: str, destination_folder: str, **kwargs) -> None:
