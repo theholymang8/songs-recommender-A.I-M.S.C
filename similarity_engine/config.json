@@ -1,17 +1,17 @@
 {
     "database": {
-        "user": "your_username",
-        "password": "your_password",
+        "user": "root",
+        "password": "Johnykeany32s",
         "host": "localhost",
         "port": "3306",
         "database": "multimodal_msc_ai_songs"
     },
     "paths": {
-        "vector_file": "path/to/your/vectors.npy",
-        "index_path": "path/to/save/index"
+        "vector_file": "../concatenated_embeddings/genre-classification/",
+        "index_path": "./index/FlatL2_gc_l.index"
     },
     "faiss": {
-        "dimension": 128,
+        "dimension": 768,
         "index_type": "FlatL2"
     }
 }

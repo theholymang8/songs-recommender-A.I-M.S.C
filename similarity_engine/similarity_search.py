@@ -1,7 +1,11 @@
-from vector_database_setup import VectorDatabase
+import os
+from similarity_engine.vector_database_setup import VectorDatabase
 import json
 
-def load_config(config_path='./config.json'):
+def load_config(config_path=None):
+    if config_path is None:
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(dir_path, 'config.json')
     with open(config_path, 'r') as file:
         return json.load(file)
 
