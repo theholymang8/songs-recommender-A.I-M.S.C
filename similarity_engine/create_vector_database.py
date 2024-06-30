@@ -1,6 +1,7 @@
 import os
 import json
 from vector_database_setup import VectorDatabase 
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +14,7 @@ def load_config(config_path=None):
     
     with open(config_path, 'r') as file:
         return json.load(file)
+
 
 def main():
     config = load_config()
@@ -28,5 +30,6 @@ def main():
 
     logger.info(f"Index creation and metadata insertion completed successfully.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

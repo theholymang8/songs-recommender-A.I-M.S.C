@@ -2,13 +2,13 @@ import os
 import shutil
 import subprocess
 from pathlib import Path, PurePath
-from typing import Union
 
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 
 def unzip_data(zip_file: str, destination_path: str):
@@ -21,7 +21,7 @@ def unzip_data(zip_file: str, destination_path: str):
 def get_wav_data(
     source_folder: str,
     destination_folder: str,
-    eligible_files: Union[list, None] = None,
+    # eligible_files: Union[list, None] = None,
 ):
     """Convert audio data of the source folder to wav format with sample rate 44,1kHz.
     Additionally convert form stereo to mono.
@@ -39,9 +39,7 @@ def get_wav_data(
         if os.path.isdir(os.path.abspath(source_folder + folder)):
             files = os.listdir(source_folder + folder)
             for file in files:
-                if file[:-4] in eligible_files and not os.path.exists(
-                    destination_folder + file[:-4] + ".wav"
-                ):
+                if not os.path.exists(destination_folder + file[:-4] + ".wav"):
                     source_file = list(
                         PurePath(os.path.join(source_folder, folder, file)).parts
                     )
@@ -69,38 +67,40 @@ def get_wav_data(
                     )
 
 
-def segment_audio(source_folder: str):
+def segment_audio(source_folder: str, destination_folder: str):
     """Segment every audio file in the directory. Additionally the parent file is deleted along with
     segments that are less than 2 seconds long.
 
     Args:
         source_folder (str): Folder containing audio files.
     """
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
     # make segmention files and delete parent
     wav_files = os.listdir(source_folder)
     for wav in wav_files:
-        subprocess.call(
-            [
-                "ffmpeg",
-                "-i",
-                source_folder + wav,
-                "-f",
-                "segment",
-                "-segment_time",
-                "10",
-                f"{source_folder}{wav[:-4]}_%0d.wav",
-                "-loglevel",
-                "error",
-            ]
-        )
-        os.remove(source_folder + wav)
+        if wav.endswith(".wav"):
+            subprocess.call(
+                [
+                    "ffmpeg",
+                    "-i",
+                    source_folder + wav,
+                    "-f",
+                    "segment",
+                    "-segment_time",
+                    "10",
+                    f"{destination_folder}{wav[:-4]}_%0d.wav",
+                    "-loglevel",
+                    "error",
+                ]
+            )
 
     # delete segments less than 2 seconds
-    wav_files = os.listdir(source_folder)
+    wav_files = os.listdir(destination_folder)
     for wav in wav_files:
-        duration = librosa.get_duration(path=source_folder + wav)
+        duration = librosa.get_duration(path=destination_folder + wav)
         if duration <= 2:
-            os.remove(source_folder + wav)
+            os.remove(destination_folder + wav)
 
 
 def get_train_test(source_folder: str, destination_folder: str, **kwargs) -> None:
@@ -205,43 +205,42 @@ def make_train_test(
     return train_set_map, test_set_map
 
 
-def get_genre_data(source_folder: str, destination_folder: str, **kwargs):
+def get_genre_data(source_folder: str, destination_folder: str, file_mapping: str):
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
 
-    genre_dict = make_genre_data(**kwargs)
-
-    for key in genre_dict.keys():
-        if not os.path.exists(destination_folder + key + "/"):
-            os.mkdir(destination_folder + key + "/")
-
-        get_wav_data(source_folder, destination_folder + key + "/", genre_dict[key])
-        segment_audio(destination_folder + key + "/")
-
-        print(f"{key} WAV data generated!")
-
-
-def make_genre_data(tracks_table_path: str):
-    # read track dataset
-    metadata = pl.read_csv(tracks_table_path)
-    # select necessary rows
-    metadata = metadata.select(["track_id", "genre_top"])
-    # make column with track filename
-    metadata = metadata.with_columns(
-        pl.col("track_id")
+    train_set_map = pl.read_csv(file_mapping)
+    train_set_map = train_set_map.with_columns(
+        pl.col("file_name")
         .map_elements(fill_track_id, return_dtype=pl.String)
         .alias("file_name")
     )
-    genres = metadata["genre_top"].unique().to_list()
+    unique_genres = train_set_map["genre"].unique().to_list()
 
-    genre_dict = {}
+    # make genre folder
+    for genre in unique_genres:
+        if not os.path.exists(destination_folder + genre + "/"):
+            os.mkdir(destination_folder + genre + "/")
 
-    for genre in genres:
-        genre_dict[genre] = metadata.filter(pl.col("genre_top") == genre)[
-            "file_name"
-        ].to_list()
+    # copy every file from source folder to respective Genre folder
+    for file_name in tqdm(os.listdir(source_folder)):
+        file_genre = train_set_map.filter(pl.col("file_name") == file_name[:-4])[
+            "genre"
+        ][0]
+        if file_name.endswith(".wav"):
+            shutil.copy(
+                source_folder + file_name,
+                destination_folder + file_genre + "/" + file_name,
+            )
 
-    return genre_dict
+    print("Begin Segmentation")
+
+    for genre in unique_genres:
+        segment_audio(
+            destination_folder + genre + "/", destination_folder + genre + "/"
+        )
+
+    print(f"{genre} WAV data generated!")
 
 
 def fill_track_id(track_id: int):

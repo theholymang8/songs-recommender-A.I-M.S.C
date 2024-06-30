@@ -61,6 +61,8 @@ def fetch_track_details(vector_ids, config):
     # Close the connection
     engine.dispose()
 
+    return results
+
 def process_audio_to_embeddings(audio_file_path, model_path):
     """
     Process an audio file to generate concatenated embeddings.
@@ -105,7 +107,7 @@ def perform_similarity_search(embedding, config):
 def main():
 
     model_path = "./models/genre.pt"  # Model path, update if necessary
-    audio_file_path = "./test_wav_files/000182.wav"  # Audio file path, update if necessary
+    audio_file_path = "./test_wav_files/000368.wav"  # Audio file path, update if necessary
     save_path = "../test_wav_files/test_query.npy"  # Path to save embeddings, update if necessary
 
     # Load configuration
@@ -116,9 +118,9 @@ def main():
 
     # Load precomputed embeddings for testing
     # test_query_embedding = "./test_wav_files/test_query.npy"
-    # loaded_embedding = load_embeddings(test_query)
+    # loaded_embedding = load_embeddings(test_q368y)
 
-    #np.save("./test_wav_files/"+ "test_query_182.npy", test_query)
+    #np.save("./test_wav_files/"+ "test_query_368.npy", test_query)
     
 
     # Perform similarity search and print results
@@ -128,7 +130,7 @@ def main():
     vector_ids = top_neighbors_indices.flatten().tolist()
 
     # Fetch and display track details from the database
-    fetch_track_details(vector_ids, loaded_config)
+    _ = fetch_track_details(vector_ids, loaded_config)
     
 
     
