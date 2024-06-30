@@ -1,14 +1,23 @@
 {
     "database": {
-        "user": "your username",
-        "password": "your_pass",
+        "user": "your_username",
+        "password": "your_password",
         "host": "localhost",
         "port": "3306",
         "database": "multimodal_msc_ai_songs"
     },
     "paths": {
-        "vector_file": "../concatenated_embeddings/genre-classification/",
-        "index_path": "./index/FlatL2_gc_l.index"
+        "embeddings_folder": {
+            "genre_classification_embeddings": "../concatenated_embeddings/genre-classification/",
+            "instrument_classification_embeddings": "../concatenated_embeddings/instrument-classification/",
+            "emotion_classification_embeddings": "../concatenated_embeddings/emotion-classification/"
+        },
+        "index_path": "./index/FlatL2_gc_genre_and_instrument_and_emotion.index"
+    },
+    "combinator": {
+        "genre": true,
+        "instrument": true,
+        "emotion": true
     },
     "faiss": {
         "dimension": 768,

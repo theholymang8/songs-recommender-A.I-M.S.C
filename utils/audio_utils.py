@@ -11,7 +11,6 @@ def process_file(file_path: str, model_path: str):
     # Assuming your script is inside a subdirectory of the root project folder
     root_directory = os.path.dirname(script_directory)
     
-    print(f"ROOT DIRECTORY: {root_directory}")
       # Move one directory level up to the project root
     absolute_model_path = os.path.join(root_directory, model_path)
 

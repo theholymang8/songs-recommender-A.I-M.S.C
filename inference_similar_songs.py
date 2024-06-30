@@ -16,7 +16,14 @@ from similarity_engine.similarity_search import SimilaritySearch, load_config
 from utils.audio_utils import process_file
 from sqlalchemy import create_engine
 import pandas as pd
+import logging
+import faiss
 
+# Configure logging
+numba_logger = logging.getLogger('numba')
+numba_logger.setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
 
 def fetch_track_details(vector_ids, config):
     """
@@ -63,7 +70,7 @@ def fetch_track_details(vector_ids, config):
 
     return results
 
-def process_audio_to_embeddings(audio_file_path, model_path):
+def process_audio_to_embeddings(audio_file_path, model_paths):
     """
     Process an audio file to generate concatenated embeddings.
 
@@ -74,9 +81,14 @@ def process_audio_to_embeddings(audio_file_path, model_path):
     Returns:
     numpy.array: Concatenated embeddings from the processed audio file.
     """
-    # Generate embeddings from the audio file
-    embeddings = process_file(audio_file_path, model_path)
-    return embeddings
+    embeddings_from_inference = []
+    for model in model_paths:
+        # Generate embeddings from the audio file
+        embeddings = process_file(audio_file_path, model)
+        embeddings_from_inference.append(embeddings)
+    concatenated_inference_embedding = np.concatenate(embeddings_from_inference, axis=None)
+    
+    return concatenated_inference_embedding
 
 def load_embeddings(file_path):
     """
@@ -102,27 +114,37 @@ def perform_similarity_search(embedding, config):
     tuple: Indices and distances of top similar items.
     """
     v_db = SimilaritySearch(config)
-    return v_db.find_similar_embeddings(embedding)
+    return v_db.find_similar_embeddings(embedding, top_k=6)
 
 def main():
 
     model_path = "./models/genre.pt"  # Model path, update if necessary
-    audio_file_path = "./test_wav_files/000368.wav"  # Audio file path, update if necessary
-    save_path = "../test_wav_files/test_query.npy"  # Path to save embeddings, update if necessary
+    audio_file_path = "./test_wav_files/000574.wav"  # Audio file path, update if necessary
+    save_path = "./test_wav_files/test_query_574_IVFF.npy"  # Path to save embeddings, update if necessary
 
     # Load configuration
     loaded_config = load_config()
 
+    model_paths = [
+        "./models/genre.pt",
+        "./models/instruments.pt",
+        "./models/mood.pt"
+    ]
+
     # Process and save embeddings
-    test_query = process_audio_to_embeddings(audio_file_path, model_path)
+    #test_query = process_audio_to_embeddings(audio_file_path, model_paths)
+
+    test_query = load_embeddings(save_path)
+
+    if loaded_config["faiss"]["index_type"] == "Cosine":
+        faiss.normalize_L2(test_query)
 
     # Load precomputed embeddings for testing
     # test_query_embedding = "./test_wav_files/test_query.npy"
     # loaded_embedding = load_embeddings(test_q368y)
 
-    #np.save("./test_wav_files/"+ "test_query_368.npy", test_query)
+    #np.save("./test_wav_files/"+ "test_query_574_IVFF.npy", test_query)
     
-
     # Perform similarity search and print results
     top_neighbors_indices, _ = perform_similarity_search(test_query, loaded_config)
 
@@ -131,8 +153,6 @@ def main():
 
     # Fetch and display track details from the database
     _ = fetch_track_details(vector_ids, loaded_config)
-    
-
     
 
 if __name__ == '__main__':

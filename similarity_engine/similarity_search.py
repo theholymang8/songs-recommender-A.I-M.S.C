@@ -1,6 +1,11 @@
 import os
 from similarity_engine.vector_database_setup import VectorDatabase
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_config(config_path=None):
     if config_path is None:
@@ -27,6 +32,9 @@ class SimilaritySearch:
         numpy.array: Indices of the top_k nearest vectors in the database.
         numpy.array: Distances to the top_k nearest vectors.
         """
+
+        self.vector_db.load_index()
+
         if self.vector_db.index is None:
             raise ValueError(
                 "FAISS index is not loaded. Please ensure the index is properly loaded."
