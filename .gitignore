@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Project Spcific
+models/
+similarity_engine/index/
+test_wav_files/
+
 # Distribution / packaging
 .Python
 build/
