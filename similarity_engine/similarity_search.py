@@ -1,14 +1,14 @@
-from vector_database import VectorDatabase
+from vector_database_setup import VectorDatabase
 import json
 
-def load_config(config_path='config.json'):
+def load_config(config_path='./config.json'):
     with open(config_path, 'r') as file:
         return json.load(file)
 
 class SimilaritySearch:
     def __init__(self, config):
         """ Initialize by loading the FAISS index from the index path in config. """
-        self.vector_db = VectorDatabase(config)
+        self.vector_db = VectorDatabase(config, create_index=False)
         self.vector_db.load_index()
 
     def find_similar_embeddings(self, query_vector, top_k=5):
