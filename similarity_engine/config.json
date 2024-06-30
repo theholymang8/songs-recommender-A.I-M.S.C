@@ -1,7 +1,7 @@
 {
     "database": {
         "user": "your_username",
-        "password": "your_password",
+        "password": "your_pass",
         "host": "localhost",
         "port": "3306",
         "database": "multimodal_msc_ai_songs"
