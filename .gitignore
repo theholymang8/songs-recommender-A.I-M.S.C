@@ -10,6 +10,7 @@ __pycache__/
 models/
 similarity_engine/index/
 test_wav_files/
+concatenated_embeddings/
 
 # Distribution / packaging
 .Python
