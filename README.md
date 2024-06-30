@@ -4,11 +4,30 @@ This is a repo for the semester project of MSc in AI at NSCR Demokritos x Univer
 
 # Table of contents
 1. [First Steps](#first-steps)
-    1. [Download Data](#download-the-data)
-    2. [Unzip Data](#unzip-the-data)
-    3. [Make Train & Test](#make-train--test-sets)
+    1. [Create virtual environment](#create-virtual-environment)
+    2. [Download Data](#download-the-data)
+    3. [Unzip Data](#unzip-the-data)
+    4. [Make Train & Test](#make-train--test-sets)
 
 # First steps
+
+## Create virtual environment
+
+The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management. 
+
+To create the envrionment, make sure you have Anaconda installed in your local environment and simply run:
+
+```bash
+conda env create -f environment.yml
+```
+
+This will create the virtual envrionment named `multimodal-2024` and you can activate it afterward by running:
+
+```bash
+conda activate multimodal-2024
+```
+
+Now, you should be able to go through the rest of the project without having issues with dependencies.
 
 ## Download the data
 
