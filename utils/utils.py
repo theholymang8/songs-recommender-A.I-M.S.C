@@ -1,12 +1,15 @@
 import os
+
 import numpy as np
 
 
-def concatenate_segmented_embeddings(embeddings_folder: str, destination_folder: str) -> None:
+def concatenate_segmented_embeddings(
+    embeddings_folder: str, destination_folder: str
+) -> None:
     """
     Reads embeddings from subfolders within a specified directory, concatenates them,
     and saves the concatenated embeddings into a new file in a destination directory.
-    
+
     Args:
     embeddings_folder (str): The path to the folder containing subfolders of embeddings.
     destination_folder (str): The path to the folder where concatenated embeddings will be saved.
@@ -20,11 +23,11 @@ def concatenate_segmented_embeddings(embeddings_folder: str, destination_folder:
     # Iterate through each subfolder to process embeddings
     for subfolder in embeddings_subfolders:
         current_folder = os.path.join(embeddings_folder, subfolder)
-        
+
         # Continue only if the current item is a directory
         if not os.path.isdir(current_folder):
             continue
-        
+
         # List all files in the current subfolder
         embeddings_files = os.listdir(current_folder)
 
@@ -34,7 +37,7 @@ def concatenate_segmented_embeddings(embeddings_folder: str, destination_folder:
         for file_ in embeddings_files:
             file_path = os.path.join(current_folder, file_)
             try:
-                embedding = np.load(file_path).astype('float32')
+                embedding = np.load(file_path).astype("float32")
                 list_of_embeddings.append(embedding)
             except Exception as e:
                 print(f"Failed to load {file_path}: {e}")

@@ -14,7 +14,7 @@ This is a repo for the semester project of MSc in AI at NSCR Demokritos x Univer
 
 ## Create virtual environment
 
-The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management. 
+The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management.
 
 To create the envrionment, make sure you have Anaconda installed in your local environment and simply run:
 
@@ -85,7 +85,7 @@ To run the inference pipeline certain requirements have to be met since not all 
 
 - **Database Setup**: The pipeline assumes that a running MySQL server with the correct schema, tables and data is running in your environment. This is important since track details are saved as metadata in the database. module `db_setup/` includes specific information on how to setup your local database environment and insert all metadata needed for the pipeline.
 
-To showcase the pipeline correctly, most components have to be executed first. Meaning that indexes have to be created (the most important ones are included in the repository) under the `similarity_engine/index` module folder. These are important to run the search operation. 
+To showcase the pipeline correctly, most components have to be executed first. Meaning that indexes have to be created (the most important ones are included in the repository) under the `similarity_engine/index` module folder. These are important to run the search operation.
 
 The demo application uses `streamlit` to run so simply run the script `demo_app.py` located in the root directory of the repository using this command:
 

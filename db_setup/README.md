@@ -32,9 +32,9 @@ database = 'multimodal_msc_ai_songs'  # Your database name
 ## Running the Script
 
 - Open your terminal or command prompt.
-    
+
 - Navigate to the directory where your script and CSV files are located.
-    
+
 - Run the script by typing `python database_loader.py`.
 
 The script assumes that the schema will be empty, meaning that it will not contain the tables and specifications of them in the db. Although if you prefer to load them manually, you can find the schema structures in the schemas folder.
@@ -57,5 +57,3 @@ The data and metadata used in this script are sourced from the Free Music Archiv
 - Research Paper: FMA: A Dataset For Music Analysis on arXiv
 
 All contributions and rights of the dataset and its metadata belong to the original creators.
-
-

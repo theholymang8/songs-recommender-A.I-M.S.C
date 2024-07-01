@@ -1,23 +1,25 @@
-import os
-from similarity_engine.vector_database_setup import VectorDatabase
 import json
 import logging
+import os
+
+from similarity_engine.vector_database_setup import VectorDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def load_config(config_path=None):
     if config_path is None:
         dir_path = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(dir_path, 'config.json')
-    with open(config_path, 'r') as file:
+        config_path = os.path.join(dir_path, "config.json")
+    with open(config_path, "r") as file:
         return json.load(file)
 
 
 class SimilaritySearch:
     def __init__(self, config):
-        """ Initialize by loading the FAISS index from the index path in config. """
+        """Initialize by loading the FAISS index from the index path in config."""
         self.vector_db = VectorDatabase(config, create_index=False, load_vectors=False)
 
     def find_similar_embeddings(self, query_vector, top_k=5):

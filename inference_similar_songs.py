@@ -1,41 +1,27 @@
-import sys
+import logging
 import os
+import sys
+
+import faiss
+import numpy as np
+import pandas as pd
+import torch
+from deep_audio_features.models.cnn import load_cnn
+from sqlalchemy import create_engine
 
 # Assuming the script is run from within the root directory of the project
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+from similarity_engine.similarity_search import SimilaritySearch, load_config
 from utils.audio_utils import process_file, process_file_custom
 
-
-from pydub import AudioSegment
-import os
-import numpy as np
-from deep_audio_features.bin import basic_test as btest
-from similarity_engine.similarity_search import SimilaritySearch, load_config
-from utils.audio_utils import process_file
-from sqlalchemy import create_engine
-import pandas as pd
-import logging
-import faiss
-
-
-
-import torch
-from torch.utils.data import DataLoader
-import pickle
-from deep_audio_features.dataloading.dataloading import FeatureExtractorDataset
-from deep_audio_features.models.cnn import load_cnn
-from deep_audio_features.utils.model_editing import drop_layers
-from deep_audio_features.lib.training import test
-
-
-
 # Configure logging
-numba_logger = logging.getLogger('numba')
+numba_logger = logging.getLogger("numba")
 numba_logger.setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
+
 
 def fetch_track_details(vector_ids, config):
     """
@@ -49,11 +35,13 @@ def fetch_track_details(vector_ids, config):
     None: This function prints the query results.
     """
     # Create database engine
-    db_config = config['database']
-    engine = create_engine(f"mysql+mysqldb://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}")
+    db_config = config["database"]
+    engine = create_engine(
+        f"mysql+mysqldb://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
+    )
 
     # Create placeholders for each vector ID
-    placeholders = ', '.join(['%s'] * len(vector_ids))
+    placeholders = ", ".join(["%s"] * len(vector_ids))
 
     # Define the SQL query with placeholders
     query = f"""
@@ -82,6 +70,7 @@ def fetch_track_details(vector_ids, config):
 
     return results
 
+
 def process_audio_to_embeddings(audio_file_path, model_paths):
     """
     Process an audio file to generate concatenated embeddings.
@@ -99,29 +88,31 @@ def process_audio_to_embeddings(audio_file_path, model_paths):
         # Generate embeddings from the audio file
         embeddings = process_file(audio_file_path, model)
         embeddings_from_inference.append(embeddings)
-    concatenated_inference_embedding = np.concatenate(embeddings_from_inference, axis=None)
-    
+    concatenated_inference_embedding = np.concatenate(
+        embeddings_from_inference, axis=None
+    )
+
     return concatenated_inference_embedding
+
 
 def process_audio_to_embeddings_model(audio_file_path, models):
-
     concatenated_inference_embedding = process_file_custom(audio_file_path, models)
-    
+
     return concatenated_inference_embedding
-    
 
 
 def load_embeddings(file_path):
     """
     Load precomputed embeddings from a file.
-    
+
     Args:
     file_path (str): Path to the numpy file containing embeddings.
 
     Returns:
     numpy.array: Loaded embeddings.
     """
-    return np.load(file_path).astype('float32')
+    return np.load(file_path).astype("float32")
+
 
 def perform_similarity_search(embedding, config):
     """
@@ -137,10 +128,12 @@ def perform_similarity_search(embedding, config):
     v_db = SimilaritySearch(config)
     return v_db.find_similar_embeddings(embedding, top_k=6)
 
-def main():
 
+def main():
     model_path = "./models/genre.pt"  # Model path, update if necessary
-    audio_file_path = "./test_wav_files/000574.wav"  # Audio file path, update if necessary
+    audio_file_path = (
+        "./test_wav_files/000574.wav"  # Audio file path, update if necessary
+    )
     save_path = "./test_wav_files/test_query_574_IVFF.npy"  # Path to save embeddings, update if necessary
 
     # Load configuration
@@ -149,7 +142,7 @@ def main():
     model_paths = {
         "genre": "./models/genre.pt",
         "instrument": "./models/instruments.pt",
-        "emotion": "./models/mood.pt"
+        "emotion": "./models/mood.pt",
     }
 
     models = {
@@ -161,10 +154,10 @@ def main():
                 "max_seq_length": None,
                 "zero_pad": None,
                 "spec_size": None,
-                "fuse": None
+                "fuse": None,
             }
         },
-        "instrument": { 
+        "instrument": {
             "properties": {
                 "model": None,
                 "hop_length": None,
@@ -172,10 +165,10 @@ def main():
                 "max_seq_length": None,
                 "zero_pad": None,
                 "spec_size": None,
-                "fuse": None
+                "fuse": None,
             }
         },
-        "emotion": { 
+        "emotion": {
             "properties": {
                 "model": None,
                 "hop_length": None,
@@ -183,9 +176,9 @@ def main():
                 "max_seq_length": None,
                 "zero_pad": None,
                 "spec_size": None,
-                "fuse": None
+                "fuse": None,
             }
-        }
+        },
     }
 
     LAYERS_DROPPED = 1
@@ -201,14 +194,11 @@ def main():
         models[key]["properties"]["max_seq_length"] = model.max_sequence_length
         models[key]["properties"]["zero_pad"] = model.zero_pad
         models[key]["properties"]["fuse"] = model.fuse
-    
-    
-    
-    
+
     # Process and save embeddings
     test_query = process_audio_to_embeddings_model(audio_file_path, models=models)
 
-    #test_query = load_embeddings(save_path)
+    # test_query = load_embeddings(save_path)
 
     if loaded_config["faiss"]["index_type"] == "Cosine":
         faiss.normalize_L2(test_query)
@@ -217,8 +207,8 @@ def main():
     # test_query_embedding = "./test_wav_files/test_query.npy"
     # loaded_embedding = load_embeddings(test_q368y)
 
-    #np.save("./test_wav_files/"+ "test_query_574_IVFF.npy", test_query)
-    
+    # np.save("./test_wav_files/"+ "test_query_574_IVFF.npy", test_query)
+
     # Perform similarity search and print results
     top_neighbors_indices, _ = perform_similarity_search(test_query, loaded_config)
 
@@ -227,7 +217,7 @@ def main():
 
     # Fetch and display track details from the database
     _ = fetch_track_details(vector_ids, loaded_config)
-    
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

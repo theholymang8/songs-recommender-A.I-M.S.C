@@ -1,18 +1,20 @@
-import os
 import json
-from vector_database_setup import VectorDatabase 
 import logging
+import os
+
+from vector_database_setup import VectorDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def load_config(config_path=None):
     if config_path is None:
         dir_path = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(dir_path, 'config.json')
-    
-    with open(config_path, 'r') as file:
+        config_path = os.path.join(dir_path, "config.json")
+
+    with open(config_path, "r") as file:
         return json.load(file)
 
 
@@ -28,7 +30,7 @@ def main():
     # Save the index to the specified path in the config json
     vector_db.save_index()
 
-    logger.info(f"Index creation and metadata insertion completed successfully.")
+    logger.info("Index creation and metadata insertion completed successfully.")
 
 
 if __name__ == "__main__":
