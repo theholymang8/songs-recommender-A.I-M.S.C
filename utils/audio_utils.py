@@ -76,7 +76,7 @@ def process_file_custom(file_path, models):
         for _ , model_ in models.items():
 
             model = model_["properties"]["model"]
-            model = drop_layers(model, 1)
+            model = drop_layers(model, 1) # Drop the last layer, we are extracting features here.
             
             # Create test set
             test_set = FeatureExtractorDataset(X=[temp_path],
@@ -98,10 +98,9 @@ def process_file_custom(file_path, models):
             # Forward a sample
             posteriors, _, _ = test(model=model, dataloader=test_loader,
                                         cnn=True, task="classification",
-                                        classifier=True if False
+                                        classifier=True if False # Temp workaround to not perform classification.
                                         else False)
             
-           # print(f"Embedding from segment: {posteriors}")
             
             posteriors = np.array(posteriors)
 
