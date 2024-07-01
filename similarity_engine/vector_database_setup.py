@@ -43,8 +43,8 @@ class VectorDatabase:
         )
 
     def load_vectors(self):
-        if not os.path.exists(self.vector_files["genre_classification_embeddings"]):
-            logger.error(f"Error: Folder {path} not found.")
+        if not os.path.exists(self.vector_files['genre_classification_embeddings']):
+            logger.error(f"Error: Folder {self.vector_files['genre_classification_embeddings']} not found.")
             return
         try:
             # default to genre-classification embeddings in the index
