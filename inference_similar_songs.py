@@ -5,7 +5,7 @@ import os
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
-from utils.audio_utils import process_file
+from utils.audio_utils import process_file, process_file_custom
 
 
 from pydub import AudioSegment
@@ -18,6 +18,18 @@ from sqlalchemy import create_engine
 import pandas as pd
 import logging
 import faiss
+
+
+
+import torch
+from torch.utils.data import DataLoader
+import pickle
+from deep_audio_features.dataloading.dataloading import FeatureExtractorDataset
+from deep_audio_features.models.cnn import load_cnn
+from deep_audio_features.utils.model_editing import drop_layers
+from deep_audio_features.lib.training import test
+
+
 
 # Configure logging
 numba_logger = logging.getLogger('numba')
@@ -81,6 +93,7 @@ def process_audio_to_embeddings(audio_file_path, model_paths):
     Returns:
     numpy.array: Concatenated embeddings from the processed audio file.
     """
+
     embeddings_from_inference = []
     for model in model_paths:
         # Generate embeddings from the audio file
@@ -89,6 +102,14 @@ def process_audio_to_embeddings(audio_file_path, model_paths):
     concatenated_inference_embedding = np.concatenate(embeddings_from_inference, axis=None)
     
     return concatenated_inference_embedding
+
+def process_audio_to_embeddings_model(audio_file_path, models):
+
+    concatenated_inference_embedding = process_file_custom(audio_file_path, models)
+    
+    return concatenated_inference_embedding
+    
+
 
 def load_embeddings(file_path):
     """
@@ -125,16 +146,69 @@ def main():
     # Load configuration
     loaded_config = load_config()
 
-    model_paths = [
-        "./models/genre.pt",
-        "./models/instruments.pt",
-        "./models/mood.pt"
-    ]
+    model_paths = {
+        "genre": "./models/genre.pt",
+        "instrument": "./models/instruments.pt",
+        "emotion": "./models/mood.pt"
+    }
 
+    models = {
+        "genre": {
+            "properties": {
+                "model": None,
+                "hop_length": None,
+                "window_length": None,
+                "max_seq_length": None,
+                "zero_pad": None,
+                "spec_size": None,
+                "fuse": None
+            }
+        },
+        "instrument": { 
+            "properties": {
+                "model": None,
+                "hop_length": None,
+                "window_length": None,
+                "max_seq_length": None,
+                "zero_pad": None,
+                "spec_size": None,
+                "fuse": None
+            }
+        },
+        "emotion": { 
+            "properties": {
+                "model": None,
+                "hop_length": None,
+                "window_length": None,
+                "max_seq_length": None,
+                "zero_pad": None,
+                "spec_size": None,
+                "fuse": None
+            }
+        }
+    }
+
+    LAYERS_DROPPED = 1
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    for key, model_path in model_paths.items():
+        model, hop_length, window_length = load_cnn(model_path)
+        model = model.to(device)
+        models[key]["properties"]["model"] = model
+        models[key]["properties"]["hop_length"] = hop_length
+        models[key]["properties"]["window_length"] = window_length
+        models[key]["properties"]["max_seq_length"] = model.max_sequence_length
+        models[key]["properties"]["zero_pad"] = model.zero_pad
+        models[key]["properties"]["fuse"] = model.fuse
+    
+    
+    
+    
     # Process and save embeddings
-    #test_query = process_audio_to_embeddings(audio_file_path, model_paths)
+    test_query = process_audio_to_embeddings_model(audio_file_path, models=models)
 
-    test_query = load_embeddings(save_path)
+    #test_query = load_embeddings(save_path)
 
     if loaded_config["faiss"]["index_type"] == "Cosine":
         faiss.normalize_L2(test_query)

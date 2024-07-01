@@ -19,11 +19,20 @@ st.title('Audio Similarity Finder')
 st.write("Upload a WAV file to find similar tracks based on audio features.")
 
 uploaded_file = st.file_uploader("Choose a WAV file...", type=['wav'])
-model_path = os.path.join(PROJECT_ROOT, "models", "genre.pt")
+
+models_path = [
+    os.path.join(PROJECT_ROOT, "models", "genre.pt"),
+    os.path.join(PROJECT_ROOT, "models", "instruments.pt"),
+    os.path.join(PROJECT_ROOT, "models", "mood.pt")
+]
+
+print(f"MODEL PATH: {models_path}")
 
 if uploaded_file is not None:
     # Save the uploaded WAV file to the test_wav_files directory
     file_path = os.path.join(WAV_FILES_DIR, uploaded_file.name)
+
+    print(f"FILE PATH: {file_path}")
     with open(file_path, 'wb') as f:
         f.write(uploaded_file.getvalue())
 
@@ -31,7 +40,7 @@ if uploaded_file is not None:
     st.audio(file_path, format='audio/wav', start_time=0)
 
     # Process the audio file to get embeddings
-    embeddings = process_audio_to_embeddings(file_path, model_path)
+    embeddings = process_audio_to_embeddings(file_path, models_path)
     loaded_config = load_config()
 
     # Perform similarity search

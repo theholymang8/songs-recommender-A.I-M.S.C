@@ -19,12 +19,6 @@ def load_config(config_path=None):
 def main():
     config = load_config()
 
-    combinator = {
-        "genre": True,
-        "instrument": True,
-        "emotion": False
-    }
-
     vector_db = VectorDatabase(config, create_index=True, load_vectors=True)
 
     # Insert metadata about the vectors
