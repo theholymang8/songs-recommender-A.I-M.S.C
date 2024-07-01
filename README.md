@@ -7,14 +7,14 @@ This is a repo for the semester project of MSc in AI at NSCR Demokritos x Univer
     1. [Create virtual environment](#create-virtual-environment)
     2. [Download Data](#download-the-data)
     3. [Unzip Data](#unzip-the-data)
-    4. [Make Train & Test](#make-train--test-sets)
+    4. [Convert MP3 to WAV](#convert-mp3-data-to-wav)
     5. [Demo Application](#demo-application)
 
 # First steps
 
 ## Create virtual environment
 
-The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management. 
+The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management.
 
 To create the envrionment, make sure you have Anaconda installed in your local environment and simply run:
 
@@ -49,23 +49,18 @@ from core.data import unzip_data
 unzip_data(zip_file, destination_path)
 ```
 
-## Make Train & Test sets
+## Convert MP3 data to WAV
 
-Create training and test set with __get_train_test__ function:
-
-- __source_folder__: The folder that the data was unzipped in the previous step
-- __destination_folder__: The folder you want your train & test set to be created
-- __track_table_path__: The file that contains the mapping between track_id and genre class
+In order to convert the unzipped data from MP3 to WAV run the python script below.
+- __source_folder__ is where the directory where the unzipped data is located
+- __destination_folder__ is where we want the WAV files to be stored
+- __sample_rate__ is the sample rate used for conversion
 
 ```python
-from core.data import get_train_test
+from core.data import get_wav_data
 
-get_train_test(source_folder, destination_folder,
-               track_table_path,
-               test_size)
+get_wav_data(source_folder, destination_folder, sample_rate)
 ```
-
-This will create 2 extra folders inside your __destination_folder__ named "train_data" and "test_data", each containing the respective WAV files defined by the split and one csv containing the genre of each file.
 
 ## Demo application
 
@@ -85,7 +80,7 @@ To run the inference pipeline certain requirements have to be met since not all 
 
 - **Database Setup**: The pipeline assumes that a running MySQL server with the correct schema, tables and data is running in your environment. This is important since track details are saved as metadata in the database. module `db_setup/` includes specific information on how to setup your local database environment and insert all metadata needed for the pipeline.
 
-To showcase the pipeline correctly, most components have to be executed first. Meaning that indexes have to be created (the most important ones are included in the repository) under the `similarity_engine/index` module folder. These are important to run the search operation. 
+To showcase the pipeline correctly, most components have to be executed first. Meaning that indexes have to be created (the most important ones are included in the repository) under the `similarity_engine/index` module folder. These are important to run the search operation.
 
 The demo application uses `streamlit` to run so simply run the script `demo_app.py` located in the root directory of the repository using this command:
 
