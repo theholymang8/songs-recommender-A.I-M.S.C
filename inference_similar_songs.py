@@ -12,8 +12,10 @@ from pydub import AudioSegment
 import os
 import numpy as np
 from deep_audio_features.bin import basic_test as btest
+from deep_audio_features.models.cnn import load_cnn
 from similarity_engine.similarity_search import SimilaritySearch, load_config
 from utils.audio_utils import process_file
+from utils import find_search_query_from_saved_embeddings
 from sqlalchemy import create_engine
 import pandas as pd
 import logging
@@ -22,12 +24,6 @@ import faiss
 
 
 import torch
-from torch.utils.data import DataLoader
-import pickle
-from deep_audio_features.dataloading.dataloading import FeatureExtractorDataset
-from deep_audio_features.models.cnn import load_cnn
-from deep_audio_features.utils.model_editing import drop_layers
-from deep_audio_features.lib.training import test
 
 
 
@@ -102,6 +98,11 @@ def process_audio_to_embeddings(audio_file_path, model_paths):
     concatenated_inference_embedding = np.concatenate(embeddings_from_inference, axis=None)
     
     return concatenated_inference_embedding
+
+def find_embeddings_in_local_path(audio_file_path: str):
+
+    test_query = find_search_query_from_saved_embeddings(audio_file_path)
+    return test_query
 
 def process_audio_to_embeddings_model(audio_file_path, models):
 
@@ -188,27 +189,29 @@ def main():
         }
     }
 
-    LAYERS_DROPPED = 1
+    # LAYERS_DROPPED = 1
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    for key, model_path in model_paths.items():
-        model, hop_length, window_length = load_cnn(model_path)
-        model = model.to(device)
-        models[key]["properties"]["model"] = model
-        models[key]["properties"]["hop_length"] = hop_length
-        models[key]["properties"]["window_length"] = window_length
-        models[key]["properties"]["max_seq_length"] = model.max_sequence_length
-        models[key]["properties"]["zero_pad"] = model.zero_pad
-        models[key]["properties"]["fuse"] = model.fuse
+    # for key, model_path in model_paths.items():
+    #     model, hop_length, window_length = load_cnn(model_path)
+    #     model = model.to(device)
+    #     models[key]["properties"]["model"] = model
+    #     models[key]["properties"]["hop_length"] = hop_length
+    #     models[key]["properties"]["window_length"] = window_length
+    #     models[key]["properties"]["max_seq_length"] = model.max_sequence_length
+    #     models[key]["properties"]["zero_pad"] = model.zero_pad
+    #     models[key]["properties"]["fuse"] = model.fuse
     
     
     
     
     # Process and save embeddings
-    test_query = process_audio_to_embeddings_model(audio_file_path, models=models)
+    # test_query = process_audio_to_embeddings_model(audio_file_path, models=models)
 
-    #test_query = load_embeddings(save_path)
+    # test_query = load_embeddings(save_path)
+
+    test_query = find_embeddings_in_local_path(audio_file_path)
 
     if loaded_config["faiss"]["index_type"] == "Cosine":
         faiss.normalize_L2(test_query)
