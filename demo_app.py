@@ -1,8 +1,16 @@
-import streamlit as st
 import os
 from inference_similar_songs import process_audio_to_embeddings, perform_similarity_search, fetch_track_details, load_config, find_embeddings_in_local_path
 import warnings
 import logging
+
+import streamlit as st
+
+from inference_similar_songs import (
+    fetch_track_details,
+    load_config,
+    perform_similarity_search,
+    process_audio_to_embeddings,
+)
 
 warnings.filterwarnings("ignore")
 
@@ -14,7 +22,7 @@ streamlit_logger.setLevel(logging.ERROR)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Path to the folder where WAV files should be saved
-WAV_FILES_DIR = os.path.join(PROJECT_ROOT, 'test_wav_files')
+WAV_FILES_DIR = os.path.join(PROJECT_ROOT, "test_wav_files")
 
 # Path to the folder where songs are stored
 SONGS_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, '..', 'songs'))
@@ -22,15 +30,15 @@ SONGS_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, '..', 'songs'))
 # Ensure the directory exists
 os.makedirs(WAV_FILES_DIR, exist_ok=True)
 
-st.title('Audio Similarity Finder')
+st.title("Audio Similarity Finder")
 st.write("Upload a WAV file to find similar tracks based on audio features.")
 
-uploaded_file = st.file_uploader("Choose a WAV file...", type=['wav'])
+uploaded_file = st.file_uploader("Choose a WAV file...", type=["wav"])
 
 models_path = [
     os.path.join(PROJECT_ROOT, "models", "genre.pt"),
     os.path.join(PROJECT_ROOT, "models", "instruments.pt"),
-    os.path.join(PROJECT_ROOT, "models", "mood.pt")
+    os.path.join(PROJECT_ROOT, "models", "mood.pt"),
 ]
 
 if uploaded_file is not None:
@@ -41,7 +49,7 @@ if uploaded_file is not None:
         f.write(uploaded_file.getvalue())
 
     # Display the uploaded audio file to allow playback
-    st.audio(file_path, format='audio/wav', start_time=0)
+    st.audio(file_path, format="audio/wav", start_time=0)
 
     # Process the audio file to get embeddings
     #embeddings = find_embeddings_in_local_path(file_path)
