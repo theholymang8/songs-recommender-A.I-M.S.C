@@ -4,7 +4,7 @@ This is a repo for the semester project of MSc in AI at NSCR Demokritos x Univer
 
 # Table of contents
 1. [First Steps](#first-steps)
-    1. [Create virtual environment](#create-virtual-environment)
+    1. [Create Conda environment](#create-virtual-environment)
     2. [Download Data](#download-the-data)
     3. [Unzip Data](#unzip-the-data)
     4. [Convert MP3 to WAV](#convert-mp3-data-to-wav)
@@ -12,7 +12,7 @@ This is a repo for the semester project of MSc in AI at NSCR Demokritos x Univer
 
 # First steps
 
-## Create virtual environment
+## Create Conda environment
 
 The environment used during the development of this project was created with anaconda using python 3.12.3. You can choose to create you own virtual environment, although, an `environment.yml` is included in the repository to facilitate the dependency management.
 
